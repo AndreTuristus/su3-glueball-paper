@@ -85,4 +85,21 @@ Finite-volume effect below 2% — controlled for β ≤ 5.9.
 - **Errors:** Jackknife with 20–50 bins
 
 ## Repository structure
+su3-glueball-paper/
+├── data/
+│ ├── su3_v5_5_beta58_L12.npz # β=5.8, L=12
+│ └── su3_v5_6c_beta59_L12.npz # β=5.9, L=12
+├── code/
+│ ├── su3_v5_5_finite_volume.py # L=12, β=5.8 production
+│ └── su3_v5_6c_beta59.py # L=12, β=5.9 production
+├── analysis/
+│ └── cornell_fit.py # 2-param Cornell fit
+├── manifests/
+│ ├── manifest_beta58_L12.json
+│ └── manifest_beta59_L12_validated.json
+├── figures/
+│ ├── continuum_extrapolation.png # SU(2) reference
+│ └── scaling_su3.png # SU(3) scaling
+├── SHA256SUMS.txt
+└── README.md
 
