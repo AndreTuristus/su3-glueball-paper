@@ -1,21 +1,22 @@
-# SU(3) Lattice Gauge Theory on GPU
+# Решёточная SU(3) теория Янга–Миллса на GPU
 
-Reproducibility package for a pure-gauge SU(3) Yang–Mills simulation on
-Kaggle GPU (NVIDIA T4). The code implements Cabibbo–Marinari SU(2)-subgroup
-pseudo-heatbath updates, APE smearing, Wilson loops, Cornell potential fits,
-and GEVP-based glueball spectroscopy.
+Пакет воспроизводимости для численного моделирования чистой калибровочной
+SU(3) теории Янга–Миллса на GPU Kaggle (NVIDIA T4). Код реализует
+обновления Кабиббо–Маринари методом псевдо-тепловой бани по SU(2)-подгруппам,
+APE-сглаживание, петли Вильсона, фитирование потенциала Корнелла
+и спектроскопию глюболов через GEVP.
 
-**Status:** generator validated; string tension measured at two β values on
-L=12; continuum extrapolation in progress.
+**Статус:** генератор валидирован; натяжение струны измерено в двух точках
+β на L=12; континуальная экстраполяция в работе.
 
-## Main results (current)
+## Основные результаты (текущие)
 
-### Generator validation
+### Валидация генератора
 
-The Cabibbo–Marinari heatbath reproduces the Bali–Schilling (1993)
-reference plaquette values across five β values:
+Тепловая баня Кабиббо–Маринари воспроизводит эталонные значения плакетки
+из работы Bali–Schilling (1993) в пяти точках β:
 
-| β | L | ⟨P⟩ (this work) | ⟨P⟩ (Bali–Schilling 1993) | Deviation |
+| β | L | ⟨P⟩ (эта работа) | ⟨P⟩ (Bali–Schilling 1993) | Отклонение |
 |---|---|---|---|---|
 | 5.6 | 8 | 0.5235 ± 0.0003 | 0.5235 | 0.0σ |
 | 5.7 | 8 | 0.5491 ± 0.0003 | 0.5495 ± 0.0010 | 0.4σ |
@@ -23,83 +24,188 @@ reference plaquette values across five β values:
 | 5.8 | 12 | 0.5676 ± 0.0001 | 0.5676 | 0.0σ |
 | 5.9 | 12 | 0.5821 ± 0.0001 | 0.5825 | 0.4σ |
 
-### String tension σa²
+### Натяжение струны σa²
 
-Two-point measurement on L=12, Cornell fit with fixed Coulomb
-coefficient e = π/12 ≈ 0.2618:
+Измерение в двух точках на L=12, фит Корнелла с фиксированным
+кулоновским коэффициентом e = π/12 ≈ 0.2618:
 
-| β | L | N_cfg | σa² |
+| β | L | N_конфиг | σa² |
 |---|---|---|---|
 | 5.8 | 12 | 1000 | 0.12094 ± 0.00182 |
 | 5.9 | 12 | 800  | 0.08439 ± 0.00134 |
 
-### Scaling (asymptotic freedom)
+### Скейлинг (асимптотическая свобода)
 
-The ratio of string tensions across β = 5.8 → 5.9 gives:
+Отношение натяжений струны между β = 5.8 → 5.9 даёт:
 σa²(5.9) / σa²(5.8) = 0.698 ± 0.015
 c ≡ -ln(ratio) / Δβ = 3.60 ± 0.22
 
-**This is consistent with the asymptotic-freedom prediction c ≈ 3.3–3.7.**
+**Это согласуется с предсказанием асимптотической свободы c ≈ 3.3–3.7.**
 
-### Finite-volume control
+### Контроль конечного объёма
 
-Comparing L=10 and L=12 at β=5.8:
+Сравнение L=10 и L=12 при β=5.8:
+
 σa²(L=10) = 0.12324 ± 0.00238
 σa²(L=12) = 0.12094 ± 0.00182
-Shift: -1.87%
+Сдвиг: -1.87%
 
-Finite-volume effect below 2% — controlled for β ≤ 5.9.
 
-## What works and what doesn't
+Эффект конечного объёма ниже 2% — контролируется при β ≤ 5.9.
 
-| Component | Status |
+## Что работает, а что нет
+
+| Компонент | Статус |
 |---|---|
-| SU(3) CM heatbath | ✅ validated |
-| Wilson loops W(R,T) | ✅ validated |
-| Cornell potential fit | ✅ validated |
-| String tension σa² | ✅ measured at two β |
-| Asymptotic freedom scaling | ✅ confirmed c = 3.60 ± 0.22 |
-| Finite-volume control | ✅ < 2% at β = 5.8 |
-| Glueball mass via GEVP | ⚠️ contaminated — improves with APE (0,3,6,9) |
-| Continuum R_0 = m/√σ | ⏸ in progress |
+| CM тепловая баня SU(3) | ✅ валидирована |
+| Петли Вильсона W(R,T) | ✅ валидированы |
+| Фит потенциала Корнелла | ✅ валидирован |
+| Натяжение струны σa² | ✅ измерено в двух β |
+| Скейлинг асимптотической свободы | ✅ подтверждён c = 3.60 ± 0.22 |
+| Контроль конечного объёма | ✅ < 2% при β = 5.8 |
+| Масса глюбола через GEVP | ⚠️ загрязнено — улучшается с APE (0,3,6,9) |
+| Континуальный R₀ = m/√σ | ⏸ в работе |
 
-## Method
+## Метод
 
-### Gauge generation
+### Генерация калибровочных полей
 
-- **Action:** Wilson plaquette action
-- **Update:** Cabibbo–Marinari SU(2)-subgroup pseudo-heatbath,
-  checkerboard, three subgroups (0,1), (0,2), (1,2) in fixed order
-- **KP sampling:** Kennedy–Pendleton for α ≥ 1, exact rejection for α < 1
-- **Unitarization:** SVD-based projection with e^{-iθ/3} phase correction
-- **Precision:** complex64 throughout
+- **Действие:** плакеточное действие Вильсона
+- **Обновление:** псевдо-тепловая баня Кабиббо–Маринари по SU(2)-подгруппам,
+  шахматный порядок, три подгруппы (0,1), (0,2), (1,2) в фиксированном порядке
+- **KP-сэмплирование:** Кеннеди–Пендлтон для α ≥ 1, точное rejection-сэмплирование для α < 1
+- **Унитаризация:** проекция через SVD с фазовой коррекцией e^{-iθ/3}
+- **Точность:** complex64 на всём протяжении
 
-### Measurements
+### Измерения
 
-- **Wilson loops:** W(R,T) for R,T ∈ [1, 6], averaged over three
-  spatial planes
-- **APE smearing:** α = 0.25, levels (0, 3, 6) or (0, 3, 6, 9)
-- **Glueball operators:** zero-momentum scalar 0⁺⁺ from smeared
-  spatial plaquettes
-- **GEVP:** generalized eigenvalue problem with SVD regularization
-- **Errors:** Jackknife with 20–50 bins
+- **Петли Вильсона:** W(R,T) для R,T ∈ [1, 6], усреднение по трём
+  пространственным плоскостям
+- **APE-сглаживание:** α = 0.25, уровни (0, 3, 6) или (0, 3, 6, 9)
+- **Операторы глюбола:** скалярный 0⁺⁺ с нулевым импульсом из сглаженных
+  пространственных плакеток
+- **GEVP:** обобщённая задача на собственные значения с SVD-регуляризацией
+- **Ошибки:** Jackknife с 20–50 бинами
 
-## Repository structure
+## Структура репозитория
+```
 su3-glueball-paper/
 ├── data/
-│ ├── su3_v5_5_beta58_L12.npz # β=5.8, L=12
-│ └── su3_v5_6c_beta59_L12.npz # β=5.9, L=12
+│   ├── su3_v5_5_beta58_L12.npz       # β=5.8, L=12
+│   └── su3_v5_6c_beta59_L12.npz      # β=5.9, L=12
 ├── code/
-│ ├── su3_v5_5_finite_volume.py # L=12, β=5.8 production
-│ └── su3_v5_6c_beta59.py # L=12, β=5.9 production
+│   ├── su3_v5_5_finite_volume.py     # L=12, β=5.8 production
+│   └── su3_v5_6c_beta59.py           # L=12, β=5.9 production
 ├── analysis/
-│ └── cornell_fit.py # 2-param Cornell fit
+│   └── cornell_fit.py                # 2-param Cornell fit
 ├── manifests/
-│ ├── manifest_beta58_L12.json
-│ └── manifest_beta59_L12_validated.json
+│   ├── manifest_beta58_L12.json
+│   └── manifest_beta59_L12_validated.json
 ├── figures/
-│ ├── continuum_extrapolation.png # SU(2) reference
-│ └── scaling_su3.png # SU(3) scaling
+│   ├── continuum_extrapolation.png   # SU(2) reference
+│   └── scaling_su3.png               # SU(3) scaling
 ├── SHA256SUMS.txt
 └── README.md
+```
 
+## Воспроизводимость
+
+Все данные криптографически верифицированы через SHA-256. См.
+`SHA256SUMS.txt` для контрольных сумм и `manifests/*.json` для
+метаданных каждого прогона (β, L, N_конфиг, seed, SHA-256 от `.npz`).
+
+**Аппаратура:** GPU Kaggle (NVIDIA T4 ×2).
+**Фреймворк:** PyTorch 2.x + CUDA 12.x.
+**Время счёта на ансамбль** (L=12, N=1000): ~22 минуты.
+
+Для воспроизведения:
+
+# Клонировать репозиторий
+git clone https://github.com/AndreTuristus/su3-glueball-paper.git
+cd su3-glueball-paper
+
+# Запустить производство L=12, β=5.8
+python code/su3_v5_5_finite_volume.py
+
+# Запустить фит Корнелла на результате
+python analysis/cornell_fit.py \
+    --input data/su3_v5_5_beta58_L12.npz \
+    --e-coulomb 0.2618
+	
+Проверить целостность:	
+
+	sha256sum -c SHA256SUMS.txt
+	
+Связанные работы
+
+Дополнение к исследованию решёточной SU(2) теории Янга–Миллса:
+
+    А. В. Туренко, Континуальная экстраполяция массы скалярного глюбола
+    в чистой калибровочной теории SU(2) на решётке, Zenodo (2026).
+    DOI: 10.5281/zenodo.23000654
+
+Репозиторий: AndreTuristus/su2-glueball-paper
+Область применения и ограничения
+
+Настоящая работа воспроизводит численное свидетельство конфайнмента
+и асимптотической свободы в SU(3) теории Янга–Миллса на решётке.
+Она не является математическим доказательством проблемы тысячелетия
+(Существование Янга–Миллса и массовая щель, Математический институт Клэя).
+
+Конкретные ограничения:
+
+    Континуальный предел достигается численной экстраполяцией, а не строгой
+    конструктивной КТП.
+
+    Масса глюбола m(0⁺⁺) требует улучшенного GEVP-базиса для чистого
+    плато; текущие значения R₀ предварительные.
+
+    Все результаты получены на конечных решётках (L ≤ 12) и не заменяют
+    OS-реконструкцию 4D теории Янга–Миллса на ℝ⁴.
+
+    Шаг overrelaxation в настоящее время отключён; генератор использует
+    только тепловую баню.
+
+Литература
+
+    F. Bali, G. Schilling, Static quark-antiquark potential in SU(3)
+    lattice gauge theory, Phys. Rev. D 47, 661 (1993),
+    arXiv:hep-lat/9209008
+
+    C. Morningstar, M. Peardon, The glueball spectrum from an
+    anisotropic lattice calculation, Phys. Rev. D 60, 034509 (1999),
+    arXiv:hep-lat/9901004
+
+    A. D. Kennedy, B. J. Pendleton, Improved heat bath method for
+    Monte Carlo calculations in lattice gauge theories,
+    Phys. Lett. B 156, 393 (1985)
+
+    N. Cabibbo, E. Marinari, A new method for updating SU(N) matrices
+    in computer simulations of gauge theories,
+    Phys. Lett. B 119, 387 (1982)
+
+    M. Lüscher, Symmetry breaking aspects of the roulette model in
+    lattice gauge theory, Nucl. Phys. B 180, 317 (1981)
+
+    I. Montvay, G. Münster, Quantum Fields on a Lattice,
+    Cambridge University Press (1994)
+
+Лицензия
+
+    Код: MIT License (см. LICENSE)
+
+    Данные и рисунки: CC BY 4.0
+
+Автор
+
+А. В. Туренко — независимый исследователь
+
+    GitHub: @AndreTuristus
+
+    ORCID: [ваш ORCID]
+
+    Контакт: turenkoandrey@gmail.com
+
+Благодарности
+
+Вычислительные ресурсы предоставлены Kaggle (NVIDIA T4 ×2, бесплатный тариф).
